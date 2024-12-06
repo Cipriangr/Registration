@@ -1,0 +1,118 @@
+$light-blue: rgb(101, 150, 240);
+$blue: rgb(18, 63, 189);
+
+.new-contact-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  span {
+    text-align: center;
+  }
+
+  h1 {
+    color: $blue;
+    display: inline-block;
+    padding-bottom: 3px;
+    border-bottom: 3px solid $blue;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+    align-items: center;
+    input {
+      margin-right: 3px;
+      border: 3px solid $light-blue;
+    }
+    #image-input {
+      border: none;
+    }
+    label {
+      margin-bottom: 5px;
+      font-size: 20px;
+      color: $blue;
+      font-weight: 600;
+      width: 100%;
+      text-align: center;
+    }
+    .content {
+      display: flex;
+      position: relative;
+      .ng-valid {
+        background-color: rgba(0, 255, 0, 0.1);
+      }
+      .ng-invalid {
+        background-color: rgba(255, 0, 0, 0.1);
+      }
+
+      .required {
+        position: absolute;
+        color: red;
+        font-size: 22px;
+        right: -10px;
+        top: -5px;
+      }
+    }
+  }
+
+  .submit {
+    margin-top: 10px;
+  }
+
+  .create-form {
+    display: flex;
+    justify-content: center;
+  }
+
+  .errorForm {
+    text-align: center;
+    h4 {
+      margin: 5px 0;
+      color: red;
+    }
+  }
+  
+  .info {
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    img {
+      width: 15px;
+      margin-right: 3px;
+    }
+    span {
+      color: red;
+    }
+  }
+
+  .action-buttons {
+    display: flex;
+    button {
+      background-color: transparent;
+      border: 2px solid $light-blue;
+      padding: 5px 10px;
+      border-radius: 10px;
+      font-weight: 700;
+      color: $blue;
+      font-size: 14px;
+      transition: all 0.25s ease-in-out;
+  
+      &:nth-child(1) {
+        margin-right: 10px;
+      }
+  
+      &:hover {
+        cursor: pointer;
+        background-color: $light-blue;
+        color: white;
+      }
+      &:disabled {
+        color: gray;
+        border: 2px solid gray;
+      }
+    }
+  }
+  
+}
