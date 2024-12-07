@@ -3,14 +3,14 @@
   <br>
   <form class="form-inline" [formGroup]="contactFormGroup" (ngSubmit)="submitForm($event)">
     <div class="form-group">
-      <label for="first">User Name</label>
+      <label for="username">User Name</label>
       <div class="content">
         <input type="text" formControlName="username">
         <span class="required">
           *
         </span>
       </div>
-      <div class="info" *ngIf="!checkValidInput('username')">
+      <div class="info errorForm" *ngIf="!checkValidInput('username')">
         <img src="info.png">
         <span>Minimum length must be 3 characters and maximum 25</span>
       </div>
@@ -21,7 +21,7 @@
       <div class="content">
         <input type="text" formControlName="fullname">
       </div>
-      <div class="info" *ngIf="!checkValidInput('fullname')">
+      <div class="info errorForm" *ngIf="!checkValidInput('fullname')">
         <img src="info.png">
         <span>Minimum length must be 3 characters and maximum 25</span>
       </div>
@@ -35,9 +35,9 @@
           *
         </span>
       </div>
-      <div class="info" *ngIf="!checkValidInput('email')">
+      <div class="info errorForm" *ngIf="!checkValidInput('email')">
         <img src="info.png">
-        <span>Type a valid email</span>
+        <span>Please enter a valid email address</span>
       </div>
     </div>
 
@@ -49,7 +49,7 @@
           *
         </span>
       </div>
-      <div class="info" *ngIf="!checkValidInput('password')">
+      <div class="info errorForm" *ngIf="!checkValidInput('password')">
         <img src="info.png">
         <span>Password must be 8-12 characters long, including uppercase and lowercase letters, numbers, and a special character</span>
       </div>
@@ -59,7 +59,7 @@
       <h4>Please fill out all required fields marked with an asterisk (*).</h4>
     </div>
     <div class="create-form action-buttons">
-      <button type="submit">Save Contact</button>
+      <button type="submit">Register me</button>
     </div>
   </form>
 </div>

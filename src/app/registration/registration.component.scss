@@ -99,10 +99,6 @@ $blue: rgb(18, 63, 189);
       font-size: 14px;
       transition: all 0.25s ease-in-out;
   
-      &:nth-child(1) {
-        margin-right: 10px;
-      }
-  
       &:hover {
         cursor: pointer;
         background-color: $light-blue;
