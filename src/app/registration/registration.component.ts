@@ -59,6 +59,7 @@ export class RegistrationComponent implements OnInit, OnDestroy {
       },
       error: () => {
         // this.submitMessage = 'There was an error while submitting the form. Please try again.';
+        alert('There was an error while submitting the form. Please try again');
         this.contactFormGroup.reset();
       },
       complete: () => {
