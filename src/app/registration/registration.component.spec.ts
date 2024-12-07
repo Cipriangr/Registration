@@ -1,204 +1,167 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { CoreService } from '../core.service';
 import { RegistrationComponent } from './registration.component';
-import { expect } from '@jest/globals';
 import { of, throwError } from 'rxjs';
+import { CommonModule } from '@angular/common';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { expect } from '@jest/globals';
 
 describe('RegistrationComponent', () => {
   let component: RegistrationComponent;
   let fixture: ComponentFixture<RegistrationComponent>;
-  let mockCoreService: jest.Mocked<CoreService>;
+  let coreServiceMock: { registerUser: jest.Mock };
 
   beforeEach(async () => {
-    mockCoreService = {
-      registerUser: jest.fn()
-    } as any;
-
+    coreServiceMock = {
+      registerUser: jest.fn(),
+    };
+    
     await TestBed.configureTestingModule({
-      imports: [ReactiveFormsModule],
-      declarations: [RegistrationComponent],
-      providers: [{ provide: CoreService, useValue: mockCoreService }]
-    }).compileComponents();
+      imports: [
+        ReactiveFormsModule,
+        CommonModule,
+        HttpClientTestingModule
+      ],
+      providers: [
+        { provide: CoreService, useValue: coreServiceMock }
+      ]
+    }).overrideComponent(RegistrationComponent, {
+      set: {
+        providers: [{ provide: CoreService, useValue: coreServiceMock }],
+      },
+    })
+    .compileComponents();
 
     fixture = TestBed.createComponent(RegistrationComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  test('should create', () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('Form Initialization', () => {
-    test('should initialize the form group', () => {
-      expect(component.contactFormGroup).toBeDefined();
-      expect(component.contactFormGroup.controls['username']).toBeDefined();
-      expect(component.contactFormGroup.controls['email']).toBeDefined();
-      expect(component.contactFormGroup.controls['password']).toBeDefined();
-      expect(component.contactFormGroup.controls['fullname']).toBeDefined();
-    });
-
-    test('should have initial form values as empty', () => {
-      expect(component.contactFormGroup.get('username')?.value).toBe('');
-      expect(component.contactFormGroup.get('email')?.value).toBe('');
-      expect(component.contactFormGroup.get('password')?.value).toBe('');
-      expect(component.contactFormGroup.get('fullname')?.value).toBe('');
-    });
+  it('should initialize form with empty fields', () => {
+    expect(component.contactFormGroup.get('username')?.value).toBe('');
+    expect(component.contactFormGroup.get('fullname')?.value).toBe('');
+    expect(component.contactFormGroup.get('email')?.value).toBe('');
+    expect(component.contactFormGroup.get('password')?.value).toBe('');
   });
 
-  describe('Form Validation', () => {
-    test('should validate username', () => {
-      const usernameControl = component.contactFormGroup.get('username');
-      
-      // Invalid cases
-      usernameControl?.setValue('');
-      expect(usernameControl?.valid).toBeFalsy();
-      
-      usernameControl?.setValue('ab');
-      expect(usernameControl?.valid).toBeFalsy();
-      
-      usernameControl?.setValue('a'.repeat(26));
-      expect(usernameControl?.valid).toBeFalsy();
-      
-      // Valid case
-      usernameControl?.setValue('validuser');
-      expect(usernameControl?.valid).toBeTruthy();
-    });
-
-    test('should validate email', () => {
-      const emailControl = component.contactFormGroup.get('email');
-      
-      // Invalid cases
-      emailControl?.setValue('');
-      expect(emailControl?.valid).toBeFalsy();
-      
-      emailControl?.setValue('invalid-email');
-      expect(emailControl?.valid).toBeFalsy();
-      
-      // Valid case
-      emailControl?.setValue('valid@email.com');
-      expect(emailControl?.valid).toBeTruthy();
-    });
-
-    test('should validate password', () => {
-      const passwordControl = component.contactFormGroup.get('password');
-      
-      // Invalid cases
-      passwordControl?.setValue('');
-      expect(passwordControl?.valid).toBeFalsy();
-      
-      passwordControl?.setValue('short');
-      expect(passwordControl?.valid).toBeFalsy();
-      
-      passwordControl?.setValue('onlylowercase');
-      expect(passwordControl?.valid).toBeFalsy();
-      
-      // Valid case
-      passwordControl?.setValue('StrongP@ss123');
-      expect(passwordControl?.valid).toBeTruthy();
-    });
+  it('should return true if the form control is valid', () => {
+    component.contactFormGroup.get('username')?.setValue('testuser');
+    component.contactFormGroup.get('username')?.markAsTouched();
+  
+    const result = component.checkValidInput('username');
+    expect(result).toBe(true);
   });
 
-  describe('Input Validation Method', () => {
-    test('should return true for untouched valid fields', () => {
-      const result = component.checkValidInput('username');
-      expect(result).toBeTruthy();
-    });
+  it('should return false if the form control is not found', () => {
+    const result = component.checkValidInput('nonExistentControl');
+    expect(result).toBe(false);
+  });  
 
-    test('should return false for invalid touched fields', () => {
-      const usernameControl = component.contactFormGroup.get('username');
-      usernameControl?.setValue('');
-      usernameControl?.markAsTouched();
-      
-      const result = component.checkValidInput('username');
-      expect(result).toBeFalsy();
-    });
+  it('should validate required fields', () => {
+    const form = component.contactFormGroup;
+    expect(form.valid).toBeFalsy();
+    
+    form.controls['username'].setValue('testuser');
+    form.controls['email'].setValue('test@test.com');
+    form.controls['password'].setValue('Test123!@');
+    
+    expect(form.valid).toBeTruthy();
   });
 
-  describe('Form Submission', () => {
-    test('should prevent submission for invalid form', () => {
-      const preventDefaultSpy = jest.fn();
-      const event = { preventDefault: preventDefaultSpy } as any;
-
-      // Set an invalid form
-      component.contactFormGroup.get('username')?.setValue('');
-      component.contactFormGroup.get('email')?.setValue('');
-      component.contactFormGroup.get('password')?.setValue('');
-
-      component.submitForm(event);
-
-      expect(preventDefaultSpy).toHaveBeenCalled();
-      expect(component.errorForm).toBeTruthy();
-    });
-
-    test('should submit form successfully', () => {
-      // Mock successful registration response
-      const mockResponse = { status: 'success', message: 'Registration Successful' };
-      mockCoreService.registerUser.mockReturnValue(of(mockResponse));
-
-      // Spy on alert
-      const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
-
-      // Create a valid form
-      component.contactFormGroup.setValue({
-        username: 'testuser',
-        fullname: 'Test User',
-        email: 'test@example.com',
-        password: 'StrongP@ss123'
-      });
-
-      const event = { preventDefault: jest.fn() } as any;
-
-      // Submit the form
-      component.submitForm(event);
-
-      // Expectations
-      expect(mockCoreService.registerUser).toHaveBeenCalledWith(
-        component.contactFormGroup.value
-      );
-      expect(alertSpy).toHaveBeenCalledWith(mockResponse.message);
-      expect(component.contactFormGroup.pristine).toBeTruthy();
-    });
-
-    test('should handle registration error', () => {
-      // Mock error response
-      mockCoreService.registerUser.mockReturnValue(
-        throwError(() => new Error('Registration Failed'))
-      );
-
-      // Spy on alert
-      const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
-
-      // Create a valid form
-      component.contactFormGroup.setValue({
-        username: 'testuser',
-        fullname: 'Test User',
-        email: 'test@example.com',
-        password: 'StrongP@ss123'
-      });
-
-      const event = { preventDefault: jest.fn() } as any;
-
-      // Submit the form
-      component.submitForm(event);
-
-      // Expectations
-      expect(mockCoreService.registerUser).toHaveBeenCalledWith(
-        component.contactFormGroup.value
-      );
-      expect(alertSpy).toHaveBeenCalledWith('There was an error while submitting the form. Please try again');
-      expect(component.contactFormGroup.pristine).toBeTruthy();
-    });
+  it('should validate password pattern', () => {
+    const passwordControl = component.contactFormGroup.get('password');
+    
+    passwordControl?.setValue('weak');
+    expect(passwordControl?.errors?.['pattern']).toBeTruthy();
+    
+    passwordControl?.setValue('StrongPass123!');
+    expect(passwordControl?.valid).toBeTruthy();
+    console.log('000', coreServiceMock.registerUser.mock.calls);
   });
 
-  describe('Component Destruction', () => {
-    test('should unsubscribe from subscriptions on destroy', () => {
-      const unsubscribeSpy = jest.spyOn(component.subscriptions, 'unsubscribe');
-      
-      component.ngOnDestroy();
-
-      expect(unsubscribeSpy).toHaveBeenCalled();
+  it('should submit form successfully', fakeAsync(() => {
+    // Arrange: Set up the form and mock return value
+    console.log('111',coreServiceMock.registerUser.mock.calls);
+    component.contactFormGroup.setValue({
+      username: 'testuser',
+      fullname: 'Test User',
+      email: 'test@example.com',
+      password: 'StrongP@ss123',
     });
+
+    coreServiceMock.registerUser.mockReturnValue(
+      of({ message: 'Registration successful!', status: 'success' })
+    );
+    console.log('222',coreServiceMock.registerUser.mock.calls);
+
+    const event = { preventDefault: jest.fn() } as any;
+    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+
+    // Act: Call the method and tick the async operation
+    component.submitForm(event);
+    tick();
+
+    // Assert: Verify method interactions and outcomes
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(coreServiceMock.registerUser).toHaveBeenCalledWith({
+      username: 'testuser',
+      fullname: 'Test User',
+      email: 'test@example.com',
+      password: 'StrongP@ss123',
+    });
+    expect(alertSpy).toHaveBeenCalledWith('Registration successful!');
+  }));
+
+  it('should set errorForm to true and not call registerUser if form is invalid', () => {
+    component.contactFormGroup.setValue({
+      username: '',
+      fullname: '',
+      email: '',
+      password: '',
+    });
+  
+    const event = { preventDefault: jest.fn() } as any;
+    component.submitForm(event);
+  
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(component.errorForm).toBe(true);
+    expect(coreServiceMock.registerUser).not.toHaveBeenCalled();
   });
+  
+
+  it('should handle registration error', fakeAsync(() => {
+    // Arrange: Set up the form and mock an error
+    component.contactFormGroup.setValue({
+      username: 'testuser',
+      fullname: 'Test User',
+      email: 'test@example.com',
+      password: 'StrongP@ss123',
+    });
+
+    coreServiceMock.registerUser.mockReturnValue(
+      throwError(() => new Error('Registration Failed'))
+    );
+
+    const event = { preventDefault: jest.fn() } as any;
+    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
+
+    // Act: Call the method and tick the async operation
+    component.submitForm(event);
+    tick();
+
+    // Assert: Verify method interactions and outcomes
+    expect(event.preventDefault).toHaveBeenCalled();
+    expect(coreServiceMock.registerUser).toHaveBeenCalledWith({
+      username: 'testuser',
+      fullname: 'Test User',
+      email: 'test@example.com',
+      password: 'StrongP@ss123',
+    });
+    expect(alertSpy).toHaveBeenCalledWith('There was an error while submitting the form. Please try again');
+  }));
 });

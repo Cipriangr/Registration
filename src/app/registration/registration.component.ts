@@ -44,29 +44,25 @@ export class RegistrationComponent implements OnInit, OnDestroy {
   
 
   submitForm(event: Event): void {
+    event.preventDefault();
     if (!this.contactFormGroup.valid) {
       this.errorForm = true;
-      event.preventDefault();
       return;
     }
 
     this.errorForm = false;
-    console.log('Form Submitted', this.contactFormGroup.value);
-    this.coreService.registerUser(this.contactFormGroup.value).subscribe({
+    console.log('!!', this.contactFormGroup.valid);
+    const registerSub = this.coreService.registerUser(this.contactFormGroup.value).subscribe({
       next: (response) => {
-        // this.submitMessage = response.message;
         alert(response.message);
+        this.contactFormGroup.reset();
       },
       error: () => {
-        // this.submitMessage = 'There was an error while submitting the form. Please try again.';
         alert('There was an error while submitting the form. Please try again');
         this.contactFormGroup.reset();
       },
-      complete: () => {
-        this.contactFormGroup.reset();
-        this.subscriptions = new Subscription();
-      }
     });
+    this.subscriptions.add(registerSub)
   }
 
   ngOnDestroy(): void { 
