@@ -91,4 +91,16 @@ describe('Registration Form', () => {
     cy.get('.required').should('have.length', 3);
   });
 
+  it('should have green background for valid fields', () => {
+    cy.get('input[formControlName="username"]').type('Cipriangr');
+    cy.get('input[formControlName="username"]').should('have.class', 'ng-valid');
+    cy.get('input[formControlName="username"]').should('have.css', 'background-color', 'rgba(0, 255, 0, 0.1)');
+  });
+
+  it('should have red background for invalid fields', () => {
+    cy.get('input[formControlName="email"]').type('invalid-email');
+    cy.get('input[formControlName="email"]').should('have.class', 'ng-invalid');
+    cy.get('input[formControlName="email"]').should('have.css', 'background-color', 'rgba(255, 0, 0, 0.1)');
+  });
+
 })

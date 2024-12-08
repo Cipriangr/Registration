@@ -1,11 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
 import { expect } from '@jest/globals';
+import { RegistrationComponent } from './registration/registration.component';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [AppComponent],
+      imports: [AppComponent, HttpClientTestingModule, RegistrationComponent],
     }).compileComponents();
   });
 

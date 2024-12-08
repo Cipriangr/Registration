@@ -6,6 +6,7 @@ import { of, throwError } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { expect } from '@jest/globals';
+import { RequestStatus } from '../interfaces';
 
 describe('RegistrationComponent', () => {
   let component: RegistrationComponent;
@@ -85,7 +86,6 @@ describe('RegistrationComponent', () => {
   });
 
   it('should submit form successfully', fakeAsync(() => {
-    // Arrange: Set up the form and mock return value
     console.log('111',coreServiceMock.registerUser.mock.calls);
     component.contactFormGroup.setValue({
       username: 'testuser',
@@ -102,11 +102,10 @@ describe('RegistrationComponent', () => {
     const event = { preventDefault: jest.fn() } as any;
     const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
 
-    // Act: Call the method and tick the async operation
+    // tick the async operation
     component.submitForm(event);
     tick();
 
-    // Assert: Verify method interactions and outcomes
     expect(event.preventDefault).toHaveBeenCalled();
     expect(coreServiceMock.registerUser).toHaveBeenCalledWith({
       username: 'testuser',
@@ -114,7 +113,7 @@ describe('RegistrationComponent', () => {
       email: 'test@example.com',
       password: 'StrongP@ss123',
     });
-    expect(alertSpy).toHaveBeenCalledWith('Registration successful!');
+    expect(alertSpy).toHaveBeenCalledWith(RequestStatus.SuccesSubmittingForm);
   }));
 
   it('should set errorForm to true and not call registerUser if form is invalid', () => {
@@ -135,7 +134,6 @@ describe('RegistrationComponent', () => {
   
 
   it('should handle registration error', fakeAsync(() => {
-    // Arrange: Set up the form and mock an error
     component.contactFormGroup.setValue({
       username: 'testuser',
       fullname: 'Test User',
@@ -150,11 +148,9 @@ describe('RegistrationComponent', () => {
     const event = { preventDefault: jest.fn() } as any;
     const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
 
-    // Act: Call the method and tick the async operation
     component.submitForm(event);
     tick();
 
-    // Assert: Verify method interactions and outcomes
     expect(event.preventDefault).toHaveBeenCalled();
     expect(coreServiceMock.registerUser).toHaveBeenCalledWith({
       username: 'testuser',
@@ -162,6 +158,6 @@ describe('RegistrationComponent', () => {
       email: 'test@example.com',
       password: 'StrongP@ss123',
     });
-    expect(alertSpy).toHaveBeenCalledWith('There was an error while submitting the form. Please try again');
+    expect(alertSpy).toHaveBeenCalledWith(RequestStatus.ErrorSubmittingForm);
   }));
 });

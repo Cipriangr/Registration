@@ -3,6 +3,7 @@ import { Component, DestroyRef, inject, OnDestroy, OnInit } from '@angular/core'
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CoreService } from '../core.service';
 import { Subscription } from 'rxjs';
+import { RequestStatus } from '../interfaces';
 
 @Component({
   selector: 'app-registration',
@@ -51,14 +52,13 @@ export class RegistrationComponent implements OnInit, OnDestroy {
     }
 
     this.errorForm = false;
-    console.log('!!', this.contactFormGroup.valid);
     const registerSub = this.coreService.registerUser(this.contactFormGroup.value).subscribe({
-      next: (response) => {
-        alert(response.message);
+      next: () => {
+        alert(RequestStatus.SuccesSubmittingForm);
         this.contactFormGroup.reset();
       },
       error: () => {
-        alert('There was an error while submitting the form. Please try again');
+        alert(RequestStatus.ErrorSubmittingForm);
         this.contactFormGroup.reset();
       },
     });
