@@ -82,11 +82,9 @@ describe('RegistrationComponent', () => {
     
     passwordControl?.setValue('StrongPass123!');
     expect(passwordControl?.valid).toBeTruthy();
-    console.log('000', coreServiceMock.registerUser.mock.calls);
   });
 
   it('should submit form successfully', fakeAsync(() => {
-    console.log('111',coreServiceMock.registerUser.mock.calls);
     component.contactFormGroup.setValue({
       username: 'testuser',
       fullname: 'Test User',
@@ -97,7 +95,6 @@ describe('RegistrationComponent', () => {
     coreServiceMock.registerUser.mockReturnValue(
       of({ message: 'Registration successful!', status: 'success' })
     );
-    console.log('222',coreServiceMock.registerUser.mock.calls);
 
     const event = { preventDefault: jest.fn() } as any;
     const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {});
