@@ -16,6 +16,7 @@ module.exports = {
   coveragePathIgnorePatterns: [
     "/node_modules/",
     "src/app/app.config.ts",
-    "src/main.ts"
+    "src/main.ts",
+    "src/environments/environment.prod.ts",
   ]
 };

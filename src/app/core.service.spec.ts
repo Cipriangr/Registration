@@ -3,6 +3,7 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { CoreService } from './core.service';
 import { RequestType, userData } from './interfaces';
 import { expect } from '@jest/globals';
+import { environment } from '../environments/environment';
 
 describe('CoreService', () => {
   let service: CoreService;
@@ -28,7 +29,7 @@ describe('CoreService', () => {
   it('should register a user', () => {
     const mockUserData: userData = {
       username: 'testuser', password: 'testpass',
-      email: ''
+      email: 'test@test.com'
     };
     const mockResponse: RequestType = { status: 'true', message: 'User registered successfully' };
 
@@ -36,7 +37,7 @@ describe('CoreService', () => {
       expect(response).toEqual(mockResponse);
     });
 
-    const req = httpMock.expectOne('http://localhost:3000/register');
+    const req = httpMock.expectOne(environment.apiBaseUrl + '/register');
     expect(req.request.method).toBe('POST');
     expect(req.request.headers.get('Content-Type')).toBe('application/json');
     req.flush(mockResponse);

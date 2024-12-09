@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { RequestType, userData } from './interfaces';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -16,7 +17,7 @@ export class CoreService {
       'Content-Type': 'application/json',
     });
   
-    return this.httpClient.post<RequestType>('http://localhost:3000/register', userData, { headers});
+    return this.httpClient.post<RequestType>(`${environment.apiBaseUrl}/register`, userData, { headers});
   }
   
 

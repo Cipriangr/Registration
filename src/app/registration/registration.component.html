@@ -54,6 +54,20 @@
         <span>Password must be 8-12 characters long, including uppercase and lowercase letters, numbers, and a special character</span>
       </div>
     </div>
+
+    <div class="form-group">
+      <label for="confirmPassword">Confirm Password</label>
+      <div class="content">
+        <input type="text" formControlName="confirmPassword">
+        <span class="required">
+          *
+        </span>
+      </div>
+      <div class="info errorForm" *ngIf="!isPassWordValidInput()">
+        <img src="info.png">
+        <span>Passwords do not match</span>
+      </div>
+    </div>
     
     <div *ngIf="errorForm" class="errorForm">
       <h4>Please fill out all required fields marked with an asterisk (*).</h4>

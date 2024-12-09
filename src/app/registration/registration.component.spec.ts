@@ -70,6 +70,7 @@ describe('RegistrationComponent', () => {
     form.controls['username'].setValue('testuser');
     form.controls['email'].setValue('test@test.com');
     form.controls['password'].setValue('Test123!@');
+    form.controls['confirmPassword'].setValue('Test123!@');
     
     expect(form.valid).toBeTruthy();
   });
@@ -90,6 +91,7 @@ describe('RegistrationComponent', () => {
       fullname: 'Test User',
       email: 'test@example.com',
       password: 'StrongP@ss123',
+      confirmPassword: 'StrongP@ss123'
     });
 
     coreServiceMock.registerUser.mockReturnValue(
@@ -119,6 +121,7 @@ describe('RegistrationComponent', () => {
       fullname: '',
       email: '',
       password: '',
+      confirmPassword: ''
     });
   
     const event = { preventDefault: jest.fn() } as any;
@@ -136,6 +139,7 @@ describe('RegistrationComponent', () => {
       fullname: 'Test User',
       email: 'test@example.com',
       password: 'StrongP@ss123',
+      confirmPassword: 'StrongP@ss123'
     });
 
     coreServiceMock.registerUser.mockReturnValue(
@@ -157,4 +161,55 @@ describe('RegistrationComponent', () => {
     });
     expect(alertSpy).toHaveBeenCalledWith(RequestStatus.ErrorSubmittingForm);
   }));
+
+  it('should unsubscribe from subscriptions on destroy', () => {
+    const unsubscribeSpy = jest.spyOn(component.subscriptions, 'unsubscribe');
+    component.ngOnDestroy();
+    expect(unsubscribeSpy).toHaveBeenCalled();
+  });
+
+  it('should return true when passwords match in confirmPassword method', () => {
+    component.contactFormGroup.get('password')?.setValue('StrongP@ss123');
+    component.contactFormGroup.get('confirmPassword')?.setValue('StrongP@ss123');
+    
+    const result = component.confirmPassword();
+    expect(result).toBe(true);
+  });
+
+  it('should return false when passwords do not match in confirmPassword method', () => {
+    component.contactFormGroup.get('password')?.setValue('StrongP@ss123');
+    component.contactFormGroup.get('confirmPassword')?.setValue('DifferentP@ss123');
+    
+    const result = component.confirmPassword();
+    expect(result).toBe(false);
+  });
+
+  it('should return true for isPassWordValidInput when confirmPassword is untouched and dirty', () => {
+    const confirmPasswordControl = component.contactFormGroup.get('confirmPassword');
+    confirmPasswordControl?.markAsUntouched();
+    confirmPasswordControl?.markAsPristine();
+    
+    const result = component.isPassWordValidInput();
+    expect(result).toBe(true);
+  });
+
+  it('should return true for isPassWordValidInput when confirmPassword is valid and matches password', () => {
+    component.contactFormGroup.get('password')?.setValue('StrongP@ss123');
+    component.contactFormGroup.get('confirmPassword')?.setValue('StrongP@ss123');
+    component.contactFormGroup.get('confirmPassword')?.markAsTouched();
+    component.contactFormGroup.get('confirmPassword')?.markAsDirty();
+    
+    const result = component.isPassWordValidInput();
+    expect(result).toBe(true);
+  });
+
+  it('should return false for isPassWordValidInput when confirmPassword is invalid or does not match password', () => {
+    component.contactFormGroup.get('password')?.setValue('StrongP@ss123');
+    component.contactFormGroup.get('confirmPassword')?.setValue('DifferentP@ss123');
+    component.contactFormGroup.get('confirmPassword')?.markAsTouched();
+    component.contactFormGroup.get('confirmPassword')?.markAsDirty();
+    
+    const result = component.isPassWordValidInput();
+    expect(result).toBe(false);
+  });
 });
